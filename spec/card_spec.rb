@@ -4,15 +4,12 @@ class Rank
   end
 
   def score
-   return 4 if rank == "A"
-   return 3 if rank == "K"
-   return 2 if rank == "Q"
-   1
+   return 4 if @rank == "A"
+   return 3 if @rank == "K"
+   return 2 if @rank == "Q"
+   return 1 if @rank == "J"
+   0
   end
-
-  private
-
-  attr_reader :rank
 end
 
 describe Rank do
@@ -39,6 +36,11 @@ describe Rank do
     context 'when rank is Jack' do
       let(:rank) {"J"}
       it { is_expected.to be 1 }
+    end
+
+    context 'when rank is ?' do
+      let(:rank) {"?"}
+      it { is_expected.to be 0 }
     end
   end
 end 
