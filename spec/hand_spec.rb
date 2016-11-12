@@ -14,21 +14,27 @@ class BridgeHandCalculator
 
   class HandParser < Struct.new(:hand_input)
     def hand
-      parse_lines(input_lines)
+      Hand.new(ranks)
     end
 
-    def input_lines
+    def ranks
+      ranks_for_lines.flatten
+    end
+
+    def ranks_for_lines
+      lines.map(&method(:ranks_from_line))
+    end
+
+    def lines
       hand_input.split("\n")
     end
 
-    def parse_lines(lines)
-      Hand.new(
-        lines.map(&method(:ranks_from_line)).flatten
-      )
+    def ranks_from_line(line)
+      line_parser_for(line).ranks
     end
 
-    def ranks_from_line(line)
-      LineParser.new(line).ranks
+    def line_parser_for(line)
+      LineParser.new(line)
     end
   end
 
