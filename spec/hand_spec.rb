@@ -2,18 +2,16 @@ require 'active_support'
 require 'active_support/core_ext'
 
 class HandScorer < Struct.new(:hand_input)
-  delegate :score, to: :hand
-
-  def hand
-    Hand.new(ranks)
+  def score
+    line_scores.sum
   end
 
-  def ranks
-    ranks_for_lines.flatten
+  def line_scores
+    line_scorers.map(&:score)
   end
 
-  def ranks_for_lines
-    lines.map(&method(:ranks_from_line))
+  def line_scorers
+    lines.map { |line| LineScorer.new(line) }
   end
 
   def lines
@@ -24,12 +22,20 @@ class HandScorer < Struct.new(:hand_input)
     line_parser_for(line).ranks
   end
 
-  def line_parser_for(line)
-    LineParser.new(line)
+  def build_line_scorer(line)
+    LineScorer.new(line)
   end
 end
 
-class LineParser < Struct.new(:line)
+class LineScorer < Struct.new(:line)
+
+  def score
+    rank_scores.sum
+  end
+
+  def rank_scores
+    ranks.map(&:score)
+  end
 
   def ranks
     rank_chars.map(&method(:character_to_rank))
@@ -41,22 +47,6 @@ class LineParser < Struct.new(:line)
 
   def character_to_rank(character)
     Rank.new(character)
-  end
-
-end
-
-class Hand
-
-  def initialize(ranks)
-    @ranks = ranks
-  end
-
-  def score
-    rank_scores.inject(:+)
-  end
-
-  def rank_scores
-    @ranks.map(&:score)
   end
 
 end
