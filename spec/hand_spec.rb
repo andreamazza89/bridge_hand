@@ -1,18 +1,24 @@
+require 'active_support'
+require 'active_support/core_ext'
+
 class BridgeHandCalculator
 
   def initialize(hand_input)
     @hand_input = hand_input
   end
 
-  def score
-    
-    lines = @hand_input.split("\n")
-    hand = parse_lines(lines)
-    hand.score
+  delegate :score, to: :hand
+
+  def hand
+    parse_lines(input_lines)
+  end
+
+  def input_lines
+    @hand_input.split("\n")
   end
 
   def parse_lines(lines)
-    Hand.new(lines.map do |line| 
+    Hand.new(lines.map do |line|
       line[1..-1].chars.map(&method(:character_to_rank))
     end.flatten)
   end
@@ -22,21 +28,21 @@ class BridgeHandCalculator
   end
 
   private
-  
+
 end
 
 class Hand
-  
+
   def initialize(ranks)
-    @ranks = ranks 
+    @ranks = ranks
   end
 
   def score
     scores = @ranks.map { |rank| rank.score}
     scores.inject(:+)
   end
-  
-  
+
+
 end
 
 describe BridgeHandCalculator do
@@ -55,4 +61,4 @@ describe BridgeHandCalculator do
       it { is_expected.to be 4 }
     end
   end
-end 
+end
