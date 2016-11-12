@@ -19,16 +19,27 @@ class BridgeHandCalculator
 
   def parse_lines(lines)
     Hand.new(lines.map do |line|
-      line[1..-1].chars.map(&method(:character_to_rank))
+      LineParser.new(line).ranks
     end.flatten)
-  end
-
-  def character_to_rank(character)
-    Rank.new(character)
   end
 
   private
 
+  class LineParser < Struct.new(:line)
+
+    def ranks
+      rank_chars.map(&method(:character_to_rank))
+    end
+
+    def rank_chars
+      line[1..-1].chars
+    end
+
+    def character_to_rank(character)
+      Rank.new(character)
+    end
+
+  end
 end
 
 class Hand
