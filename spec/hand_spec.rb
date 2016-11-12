@@ -4,26 +4,29 @@ require 'active_support/core_ext'
 class BridgeHandCalculator
 
   def initialize(hand_input)
-    @hand_input = hand_input
+    @hand_parser = HandParser.new(hand_input)
   end
 
+  delegate :hand, to: :@hand_parser
   delegate :score, to: :hand
 
-  def hand
-    parse_lines(input_lines)
-  end
-
-  def input_lines
-    @hand_input.split("\n")
-  end
-
-  def parse_lines(lines)
-    Hand.new(lines.map do |line|
-      LineParser.new(line).ranks
-    end.flatten)
-  end
-
   private
+
+  class HandParser < Struct.new(:hand_input)
+    def hand
+      parse_lines(input_lines)
+    end
+
+    def input_lines
+      hand_input.split("\n")
+    end
+
+    def parse_lines(lines)
+      Hand.new(lines.map do |line|
+        LineParser.new(line).ranks
+      end.flatten)
+    end
+  end
 
   class LineParser < Struct.new(:line)
 
