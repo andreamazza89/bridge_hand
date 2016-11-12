@@ -1,58 +1,48 @@
 require 'active_support'
 require 'active_support/core_ext'
 
-class BridgeHandCalculator
-
-  def initialize(hand_input)
-    @hand_parser = HandParser.new(hand_input)
-  end
-
-  delegate :hand, to: :@hand_parser
+class HandScorer < Struct.new(:hand_input)
   delegate :score, to: :hand
 
-  private
-
-  class HandParser < Struct.new(:hand_input)
-    def hand
-      Hand.new(ranks)
-    end
-
-    def ranks
-      ranks_for_lines.flatten
-    end
-
-    def ranks_for_lines
-      lines.map(&method(:ranks_from_line))
-    end
-
-    def lines
-      hand_input.split("\n")
-    end
-
-    def ranks_from_line(line)
-      line_parser_for(line).ranks
-    end
-
-    def line_parser_for(line)
-      LineParser.new(line)
-    end
+  def hand
+    Hand.new(ranks)
   end
 
-  class LineParser < Struct.new(:line)
-
-    def ranks
-      rank_chars.map(&method(:character_to_rank))
-    end
-
-    def rank_chars
-      line[1..-1].chars
-    end
-
-    def character_to_rank(character)
-      Rank.new(character)
-    end
-
+  def ranks
+    ranks_for_lines.flatten
   end
+
+  def ranks_for_lines
+    lines.map(&method(:ranks_from_line))
+  end
+
+  def lines
+    hand_input.split("\n")
+  end
+
+  def ranks_from_line(line)
+    line_parser_for(line).ranks
+  end
+
+  def line_parser_for(line)
+    LineParser.new(line)
+  end
+end
+
+class LineParser < Struct.new(:line)
+
+  def ranks
+    rank_chars.map(&method(:character_to_rank))
+  end
+
+  def rank_chars
+    line[1..-1].chars
+  end
+
+  def character_to_rank(character)
+    Rank.new(character)
+  end
+
 end
 
 class Hand
@@ -71,7 +61,7 @@ class Hand
 
 end
 
-describe BridgeHandCalculator do
+describe HandScorer do
 
   describe '#score' do
 
