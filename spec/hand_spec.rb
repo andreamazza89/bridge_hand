@@ -22,9 +22,13 @@ class BridgeHandCalculator
     end
 
     def parse_lines(lines)
-      Hand.new(lines.map do |line|
-        LineParser.new(line).ranks
-      end.flatten)
+      Hand.new(
+        lines.map(&method(:ranks_from_line)).flatten
+      )
+    end
+
+    def ranks_from_line(line)
+      LineParser.new(line).ranks
     end
   end
 
