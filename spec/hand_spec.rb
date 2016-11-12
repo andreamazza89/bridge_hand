@@ -62,10 +62,12 @@ class Hand
   end
 
   def score
-    scores = @ranks.map { |rank| rank.score}
-    scores.inject(:+)
+    rank_scores.inject(:+)
   end
 
+  def rank_scores
+    @ranks.map(&:score)
+  end
 
 end
 
