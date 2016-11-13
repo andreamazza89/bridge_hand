@@ -1,45 +1,57 @@
-class BridgeHandCalculator
+require 'active_support'
+require 'active_support/core_ext'
 
-  def initialize(hand_input)
-    @hand_input = hand_input
+class HandScorer < Struct.new(:hand_input)
+  def score
+    line_scores.sum
   end
+
+  def line_scores
+    line_scorers.map(&:score)
+  end
+
+  def line_scorers
+    lines.map { |line| LineScorer.new(line) }
+  end
+
+  def lines
+    hand_input.split("\n")
+  end
+
+  def ranks_from_line(line)
+    line_parser_for(line).ranks
+  end
+
+  def build_line_scorer(line)
+    LineScorer.new(line)
+  end
+end
+
+class LineScorer < Struct.new(:line)
 
   def score
-    
-    lines = @hand_input.split("\n")
-    hand = parse_lines(lines)
-    hand.score
+    rank_scores.sum
   end
 
-  def parse_lines(lines)
-    Hand.new(lines.map do |line| 
-      line[1..-1].chars.map(&method(:character_to_rank))
-    end.flatten)
+  def rank_scores
+    ranks.map(&:score)
+  end
+
+  def ranks
+    rank_chars.map(&method(:character_to_rank))
+  end
+
+  def rank_chars
+    line[1..-1].chars
   end
 
   def character_to_rank(character)
     Rank.new(character)
   end
 
-  private
-  
 end
 
-class Hand
-  
-  def initialize(ranks)
-    @ranks = ranks 
-  end
-
-  def score
-    scores = @ranks.map { |rank| rank.score}
-    scores.inject(:+)
-  end
-  
-  
-end
-
-describe BridgeHandCalculator do
+describe HandScorer do
 
   describe '#score' do
 
@@ -55,4 +67,4 @@ describe BridgeHandCalculator do
       it { is_expected.to be 4 }
     end
   end
-end 
+end
